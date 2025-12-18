@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍔 School Food Stall POS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-yellow-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">🍔 Food Stall POS</h1>
+                <div class="flex gap-2 flex-wrap justify-end">
+                    <button onclick="showTab('dashboard')" class="tab-btn px-3 py-1 rounded-lg hover:bg-white/20 text-sm">📊 Dashboard</button>
+                    <button onclick="showTab('contributors')" class="tab-btn px-3 py-1 rounded-lg hover:bg-white/20 text-sm">👥 Contributors</button>
+                    <button onclick="showTab('menu')" class="tab-btn px-3 py-1 rounded-lg hover:bg-white/20 text-sm">🍕 Menu</button>
+                    <button onclick="showTab('billing')" class="tab-btn px-3 py-1 rounded-lg hover:bg-white/20 text-sm">🧾 Billing</button>
+                    <button onclick="showTab('sales')" class="tab-btn px-3 py-1 rounded-lg hover:bg-white/20 text-sm">📈 Sales</button>
+                    <button onclick="showTab('distribute')" class="tab-btn px-3 py-1 rounded-lg hover:bg-white/20 text-sm">💰 Distribute</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-4">
+        <!-- Dashboard -->
+        <div id="dashboard" class="tab-content">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">📊 Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-500">
+                    <p class="text-gray-500 text-sm">Total Contributions</p>
+                    <p id="totalContributions" class="text-3xl font-bold text-blue-600">₹0</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-500">
+                    <p class="text-gray-500 text-sm">Total Sales (3 Days)</p>
+                    <p id="totalSales" class="text-3xl font-bold text-green-600">₹0</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-purple-500">
+                    <p class="text-gray-500 text-sm">Net Profit</p>
+                    <p id="netProfit" class="text-3xl font-bold text-purple-600">₹0</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-orange-500">
+                    <p class="text-gray-500 text-sm">Total Bills</p>
+                    <p id="totalBills" class="text-3xl font-bold text-orange-600">0</p>
+                </div>
+            </div>
+            
+            <!-- Day-wise Sales -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                <h3 class="text-xl font-bold mb-4">📅 Day-wise Sales</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gradient-to-r from-blue-100 to-blue-200 p-4 rounded-xl">
+                        <p class="font-semibold text-blue-800">Day 1</p>
+                        <p id="day1Sales" class="text-2xl font-bold text-blue-600">₹0</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-100 to-green-200 p-4 rounded-xl">
+                        <p class="font-semibold text-green-800">Day 2</p>
+                        <p id="day2Sales" class="text-2xl font-bold text-green-600">₹0</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-100 to-purple-200 p-4 rounded-xl">
+                        <p class="font-semibold text-purple-800">Day 3</p>
+                        <p id="day3Sales" class="text-2xl font-bold text-purple-600">₹0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Day Selector -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-xl font-bold mb-4">🗓️ Select Current Day</h3>
+                <div class="flex gap-3 flex-wrap">
+                    <button onclick="setCurrentDay(1)" class="day-btn px-6 py-3 rounded-xl font-semibold bg-blue-500 text-white hover:bg-blue-600">Day 1</button>
+                    <button onclick="setCurrentDay(2)" class="day-btn px-6 py-3 rounded-xl font-semibold bg-green-500 text-white hover:bg-green-600">Day 2</button>
+                    <button onclick="setCurrentDay(3)" class="day-btn px-6 py-3 rounded-xl font-semibold bg-purple-500 text-white hover:bg-purple-600">Day 3</button>
+                    <button onclick="setCurrentDay(4)" class="day-btn px-6 py-3 rounded-xl font-semibold bg-orange-500 text-white hover:bg-orange-600">Day 4 (Distribution)</button>
+                </div>
+                <p class="mt-3 text-gray-600">Current Day: <span id="currentDayDisplay" class="font-bold text-orange-600">Day 1</span></p>
+            </div>
+        </div>
+
+        <!-- Contributors -->
+        <div id="contributors" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">👥 Contributors & Sponsors</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Add Friend -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 text-blue-600">👫 Add Friend</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="friendName" placeholder="Friend's Name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none">
+                        <input type="number" id="friendAmount" placeholder="Contribution Amount (₹)" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none">
+                        <button onclick="addContributor('friend')" class="w-full bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600">Add Friend</button>
+                    </div>
+                </div>
+
+                <!-- Add Sponsor -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 text-green-600">🏢 Add Sponsor</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="sponsorName" placeholder="Sponsor's Name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 outline-none">
+                        <input type="number" id="sponsorAmount" placeholder="Sponsor Amount (₹)" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 outline-none">
+                        <button onclick="addContributor('sponsor')" class="w-full bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600">Add Sponsor</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contributors List -->
+            <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">👫 Friends</h3>
+                    <div id="friendsList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                    <p class="mt-4 font-semibold text-blue-600">Total: ₹<span id="friendsTotal">0</span></p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">🏢 Sponsors</h3>
+                    <div id="sponsorsList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                    <p class="mt-4 font-semibold text-green-600">Total: ₹<span id="sponsorsTotal">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu -->
+        <div id="menu" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">🍕 Menu Items</h2>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                <h3 class="text-xl font-bold mb-4">➕ Add Menu Item</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="itemName" placeholder="Item Name" class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none">
+                    <input type="number" id="itemPrice" placeholder="Price (₹)" class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none">
+                    <button onclick="addMenuItem()" class="bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600">Add Item</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-xl font-bold mb-4">📋 Menu Items</h3>
+                <div id="menuList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- Billing -->
+        <div id="billing" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">🧾 Create Bill</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Menu Selection -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">🍔 Select Items</h3>
+                    <div id="billingMenu" class="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto"></div>
+                </div>
+
+                <!-- Current Order -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">🛒 Current Order</h3>
+                    <input type="text" id="customerName" placeholder="Customer Name (optional)" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none mb-4">
+                    <div id="currentOrder" class="space-y-2 max-h-48 overflow-y-auto mb-4"></div>
+                    <div class="border-t-2 pt-4">
+                        <p class="text-2xl font-bold text-gray-800">Total: ₹<span id="orderTotal">0</span></p>
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="clearOrder()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600">Clear</button>
+                        <button onclick="generateBill()" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600">Generate Bill</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales History -->
+        <div id="sales" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">📈 Sales History</h2>
+            
+            <div class="flex gap-3 mb-6 flex-wrap">
+                <button onclick="filterSales('all')" class="px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600">All Days</button>
+                <button onclick="filterSales(1)" class="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600">Day 1</button>
+                <button onclick="filterSales(2)" class="px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600">Day 2</button>
+                <button onclick="filterSales(3)" class="px-4 py-2 bg-purple-500 text-white rounded-xl hover:bg-purple-600">Day 3</button>
+            </div>
+
+            <div id="salesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- Distribute Profits -->
+        <div id="distribute" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">💰 Day 4 - Profit Distribution</h2>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                <h3 class="text-xl font-bold mb-4">📊 Summary</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-100 p-4 rounded-xl">
+                        <p class="text-sm text-blue-600">Friends' Investment</p>
+                        <p id="distFriendsInv" class="text-2xl font-bold text-blue-800">₹0</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-xl">
+                        <p class="text-sm text-green-600">Sponsor Money</p>
+                        <p id="distSponsorInv" class="text-2xl font-bold text-green-800">₹0</p>
+                    </div>
+                    <div class="bg-yellow-100 p-4 rounded-xl">
+                        <p class="text-sm text-yellow-600">Total Sales</p>
+                        <p id="distTotalSales" class="text-2xl font-bold text-yellow-800">₹0</p>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-xl">
+                        <p class="text-sm text-purple-600">Net Profit</p>
+                        <p id="distNetProfit" class="text-2xl font-bold text-purple-800">₹0</p>
+                    </div>
+                </div>
+                <button onclick="calculateDistribution()" class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-red-600">Calculate Distribution</button>
+            </div>
+
+            <div id="distributionResult" class="bg-white rounded-2xl p-6 shadow-lg hidden">
+                <h3 class="text-xl font-bold mb-4">💵 Distribution to Friends</h3>
+                <p class="text-sm text-gray-500 mb-4">Each friend gets: Original Investment + Share of Profit (based on contribution %)</p>
+                <div id="distributionList" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div id="billModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto">
+            <div id="printArea" class="p-6">
+                <div class="text-center border-b-2 border-dashed pb-4 mb-4">
+                    <h2 class="text-2xl font-bold">🍔 Food Stall</h2>
+                    <p class="text-gray-500">School Food Festival</p>
+                    <p id="billDate" class="text-sm text-gray-400"></p>
+                    <p id="billNumber" class="text-sm font-mono"></p>
+                </div>
+                <p id="billCustomer" class="font-semibold mb-2"></p>
+                <div id="billItems" class="space-y-1 mb-4"></div>
+                <div class="border-t-2 border-dashed pt-4">
+                    <p class="text-2xl font-bold text-right">Total: ₹<span id="billTotal">0</span></p>
+                </div>
+                <p class="text-center text-gray-400 mt-4 text-sm">Thank you! Visit again! 🙏</p>
+            </div>
+            <div class="flex gap-3 p-4 border-t">
+                <button onclick="closeBillModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold">Close</button>
+                <button onclick="printBill()" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-semibold">🖨️ Print</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Store
+        let data = {
+            currentDay: 1,
+            friends: [],
+            sponsors: [],
+            menuItems: [],
+            bills: [],
+            currentOrder: []
+        };
+
+        // Load from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('foodStallPOS');
+            if (saved) {
+                data = JSON.parse(saved);
+            }
+            updateAllDisplays();
+        }
+
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('foodStallPOS', JSON.stringify(data));
+        }
+
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            updateAllDisplays();
+        }
+
+        // Set Current Day
+        function setCurrentDay(day) {
+            data.currentDay = day;
+            document.getElementById('currentDayDisplay').textContent = day === 4 ? 'Day 4 (Distribution)' : `Day ${day}`;
+            saveData();
+        }
+
+        // Add Contributor
+        function addContributor(type) {
+            const nameInput = type === 'friend' ? 'friendName' : 'sponsorName';
+            const amountInput = type === 'friend' ? 'friendAmount' : 'sponsorAmount';
+            
+            const name = document.getElementById(nameInput).value.trim();
+            const amount = parseFloat(document.getElementById(amountInput).value);
+
+            if (!name || !amount || amount <= 0) {
+                alert('Please enter valid name and amount!');
+                return;
+            }
+
+            const contributor = { id: Date.now(), name, amount };
+            
+            if (type === 'friend') {
+                data.friends.push(contributor);
+            } else {
+                data.sponsors.push(contributor);
+            }
+
+            document.getElementById(nameInput).value = '';
+            document.getElementById(amountInput).value = '';
+            
+            saveData();
+            updateContributorsList();
+            updateDashboard();
+        }
+
+        // Remove Contributor
+        function removeContributor(type, id) {
+            if (type === 'friend') {
+                data.friends = data.friends.filter(f => f.id !== id);
+            } else {
+                data.sponsors = data.sponsors.filter(s => s.id !== id);
+            }
+            saveData();
+            updateContributorsList();
+            updateDashboard();
+        }
+
+        // Update Contributors List
+        function updateContributorsList() {
+            const friendsList = document.getElementById('friendsList');
+            const sponsorsList = document.getElementById('sponsorsList');
+
+            friendsList.innerHTML = data.friends.map(f => `
+                <div class="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
+                    <span class="font-medium">${f.name}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-blue-600 font-bold">₹${f.amount}</span>
+                        <button onclick="removeContributor('friend', ${f.id})" class="text-red-500 hover:text-red-700">✕</button>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-400">No friends added yet</p>';
+
+            sponsorsList.innerHTML = data.sponsors.map(s => `
+                <div class="flex justify-between items-center bg-green-50 p-3 rounded-lg">
+                    <span class="font-medium">${s.name}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-600 font-bold">₹${s.amount}</span>
+                        <button onclick="removeContributor('sponsor', ${s.id})" class="text-red-500 hover:text-red-700">✕</button>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-400">No sponsors added yet</p>';
+
+            const friendsTotal = data.friends.reduce((sum, f) => sum + f.amount, 0);
+            const sponsorsTotal = data.sponsors.reduce((sum, s) => sum + s.amount, 0);
+
+            document.getElementById('friendsTotal').textContent = friendsTotal;
+            document.getElementById('sponsorsTotal').textContent = sponsorsTotal;
+        }
+
+        // Add Menu Item
+        function addMenuItem() {
+            const name = document.getElementById('itemName').value.trim();
+            const price = parseFloat(document.getElementById('itemPrice').value);
+
+            if (!name || !price || price <= 0) {
+                alert('Please enter valid item name and price!');
+                return;
+            }
+
+            data.menuItems.push({ id: Date.now(), name, price });
+            
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemPrice').value = '';
+
+            saveData();
+            updateMenuList();
+        }
+
+        // Remove Menu Item
+        function removeMenuItem(id) {
+            data.menuItems = data.menuItems.filter(item => item.id !== id);
+            saveData();
+            updateMenuList();
+        }
+
+        // Update Menu List
+        function updateMenuList() {
+            const menuList = document.getElementById('menuList');
+            const billingMenu = document.getElementById('billingMenu');
+
+            menuList.innerHTML = data.menuItems.map(item => `
+                <div class="bg-orange-50 p-4 rounded-xl flex justify-between items-center">
+                    <div>
+                        <p class="font-semibold">${item.name}</p>
+                        <p class="text-orange-600 font-bold">₹${item.price}</p>
+                    </div>
+                    <button onclick="removeMenuItem(${item.id})" class="text-red-500 hover:text-red-700 text-xl">✕</button>
+                </div>
+            `).join('') || '<p class="text-gray-400 col-span-3">No menu items added yet</p>';
+
+            billingMenu.innerHTML = data.menuItems.map(item => `
+                <button onclick="addToOrder(${item.id})" class="bg-gradient-to-r from-orange-400 to-red-400 text-white p-4 rounded-xl hover:from-orange-500 hover:to-red-500 transition">
+                    <p class="font-semibold text-sm">${item.name}</p>
+                    <p class="text-lg font-bold">₹${item.price}</p>
+                </button>
+            `).join('') || '<p class="text-gray-400 col-span-2">No menu items. Add items first!</p>';
+        }
+
+        // Add to Order
+        function addToOrder(itemId) {
+            const item = data.menuItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const existingItem = data.currentOrder.find(o => o.id === itemId);
+            if (existingItem) {
+                existingItem.qty++;
+            } else {
+                data.currentOrder.push({ ...item, qty: 1 });
+            }
+            updateCurrentOrder();
+        }
+
+        // Remove from Order
+        function removeFromOrder(itemId) {
+            const existingItem = data.currentOrder.find(o => o.id === itemId);
+            if (existingItem) {
+                existingItem.qty--;
+                if (existingItem.qty <= 0) {
+                    data.currentOrder = data.currentOrder.filter(o => o.id !== itemId);
+                }
+            }
+            updateCurrentOrder();
+        }
+
+        // Update Current Order
+        function updateCurrentOrder() {
+            const orderDiv = document.getElementById('currentOrder');
+            const total = data.currentOrder.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            orderDiv.innerHTML = data.currentOrder.map(item => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                    <div>
+                        <p class="font-medium">${item.name}</p>
+                        <p class="text-sm text-gray-500">₹${item.price} × ${item.qty}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">₹${item.price * item.qty}</span>
+                        <button onclick="removeFromOrder(${item.id})" class="bg-red-100 text-red-600 w-6 h-6 rounded-full">-</button>
+                        <button onclick="addToOrder(${item.id})" class="bg-green-100 text-green-600 w-6 h-6 rounded-full">+</button>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-400">No items in order</p>';
+
+            document.getElementById('orderTotal').textContent = total;
+        }
+
+        // Clear Order
+        function clearOrder() {
+            data.currentOrder = [];
+            document.getElementById('customerName').value = '';
+            updateCurrentOrder();
+        }
+
+        // Generate Bill
+        function generateBill() {
+            if (data.currentOrder.length === 0) {
+                alert('No items in order!');
+                return;
+            }
+
+            if (data.currentDay === 4) {
+                alert('Day 4 is for distribution only. No sales allowed!');
+                return;
+            }
+
+            const bill = {
+                id: Date.now(),
+                billNo: `BILL-${data.bills.length + 1}`.padStart(10, '0'),
+                customer: document.getElementById('customerName').value.trim() || 'Guest',
+                items: [...data.currentOrder],
+                total: data.currentOrder.reduce((sum, item) => sum + (item.price * item.qty), 0),
+                day: data.currentDay,
+                date: new Date().toLocaleString()
+            };
+
+            data.bills.push(bill);
+            saveData();
+
+            // Show Bill Modal
+            showBillModal(bill);
+            clearOrder();
+            updateDashboard();
+            updateSalesList();
+        }
+
+        // Show Bill Modal
+        function showBillModal(bill) {
+            document.getElementById('billDate').textContent = bill.date;
+            document.getElementById('billNumber').textContent = bill.billNo;
+            document.getElementById('billCustomer').textContent = `Customer: ${bill.customer}`;
+            document.getElementById('billTotal').textContent = bill.total;
+
+            document.getElementById('billItems').innerHTML = bill.items.map(item => `
+                <div class="flex justify-between text-sm">
+                    <span>${item.name} × ${item.qty}</span>
+                    <span>₹${item.price * item.qty}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('billModal').classList.remove('hidden');
+            document.getElementById('billModal').classList.add('flex');
+        }
+
+        // Close Bill Modal
+        function closeBillModal() {
+            document.getElementById('billModal').classList.add('hidden');
+            document.getElementById('billModal').classList.remove('flex');
+        }
+
+        // Print Bill
+        function printBill() {
+            window.print();
+        }
+
+        // Update Sales List
+        function updateSalesList(filter = 'all') {
+            const salesList = document.getElementById('salesList');
+            let bills = [...data.bills].reverse();
+
+            if (filter !== 'all') {
+                bills = bills.filter(b => b.day === filter);
+            }
+
+            salesList.innerHTML = bills.map(bill => `
+                <div class="bg-white p-4 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-mono text-sm text-gray-500">${bill.billNo}</p>
+                            <p class="font-semibold">${bill.customer}</p>
+                        </div>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Day ${bill.day}</span>
+                    </div>
+                    <div class="text-sm text-gray-500 mb-2">
+                        ${bill.items.map(i => `${i.name}×${i.qty}`).join(', ')}
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-400">${bill.date}</span>
+                        <span class="text-xl font-bold text-green-600">₹${bill.total}</span>
+                    </div>
+                    <button onclick="showBillModal(data.bills.find(b => b.id === ${bill.id}))" class="mt-2 text-blue-500 text-sm hover:underline">View & Print</button>
+                </div>
+            `).join('') || '<p class="text-gray-400">No sales yet</p>';
+        }
+
+        // Filter Sales
+        function filterSales(day) {
+            updateSalesList(day);
+        }
+
+        // Update Dashboard
+        function updateDashboard() {
+            const friendsTotal = data.friends.reduce((sum, f) => sum + f.amount, 0);
+            const sponsorsTotal = data.sponsors.reduce((sum, s) => sum + s.amount, 0);
+            const totalContributions = friendsTotal + sponsorsTotal;
+
+            const totalSales = data.bills.reduce((sum, b) => sum + b.total, 0);
+            const netProfit = totalSales - totalContributions;
+
+            const day1Sales = data.bills.filter(b => b.day === 1).reduce((sum, b) => sum + b.total, 0);
+            const day2Sales = data.bills.filter(b => b.day === 2).reduce((sum, b) => sum + b.total, 0);
+            const day3Sales = data.bills.filter(b => b.day === 3).reduce((sum, b) => sum + b.total, 0);
+
+            document.getElementById('totalContributions').textContent = `₹${totalContributions}`;
+            document.getElementById('totalSales').textContent = `₹${totalSales}`;
+            document.getElementById('netProfit').textContent = `₹${netProfit}`;
+            document.getElementById('totalBills').textContent = data.bills.length;
+
+            document.getElementById('day1Sales').textContent = `₹${day1Sales}`;
+            document.getElementById('day2Sales').textContent = `₹${day2Sales}`;
+            document.getElementById('day3Sales').textContent = `₹${day3Sales}`;
+
+            document.getElementById('currentDayDisplay').textContent = data.currentDay === 4 ? 'Day 4 (Distribution)' : `Day ${data.currentDay}`;
+        }
+
+        // Calculate Distribution
+        function calculateDistribution() {
+            const friendsTotal = data.friends.reduce((sum, f) => sum + f.amount, 0);
+            const sponsorsTotal = data.sponsors.reduce((sum, s) => sum + s.amount, 0);
+            const totalSales = data.bills.reduce((sum, b) => sum + b.total, 0);
+            const netProfit = totalSales - friendsTotal - sponsorsTotal;
+
+            document.getElementById('distFriendsInv').textContent = `₹${friendsTotal}`;
+            document.getElementById('distSponsorInv').textContent = `₹${sponsorsTotal}`;
+            document.getElementById('distTotalSales').textContent = `₹${totalSales}`;
+            document.getElementById('distNetProfit').textContent = `₹${netProfit}`;
+
+            if (data.friends.length === 0) {
+                alert('No friends to distribute to!');
+                return;
+            }
+
+            // Calculate each friend's share based on their contribution percentage
+            const distributions = data.friends.map(friend => {
+                const contributionPercent = (friend.amount / friendsTotal) * 100;
+                const profitShare = (friend.amount / friendsTotal) * netProfit;
+                const totalReturn = friend.amount + profitShare;
+
+                return {
+                    name: friend.name,
+                    investment: friend.amount,
+                    percent: contributionPercent.toFixed(1),
+                    profitShare: profitShare.toFixed(2),
+                    totalReturn: totalReturn.toFixed(2)
+                };
+            });
+
+            const distributionList = document.getElementById('distributionList');
+            distributionList.innerHTML = distributions.map(d => `
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-lg">${d.name}</span>
+                        <span class="text-2xl font-bold text-green-600">₹${d.totalReturn}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-sm">
+                        <div class="bg-white p-2 rounded-lg text-center">
+                            <p class="text-gray-500">Investment</p>
+                            <p class="font-semibold">₹${d.investment}</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg text-center">
+                            <p class="text-gray-500">Share</p>
+                            <p class="font-semibold">${d.percent}%</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg text-center">
+                            <p class="text-gray-500">Profit</p>
+                            <p class="font-semibold ${parseFloat(d.profitShare) >= 0 ? 'text-green-600' : 'text-red-600'}">₹${d.profitShare}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('distributionResult').classList.remove('hidden');
+        }
+
+        // Update All Displays
+        function updateAllDisplays() {
+            updateDashboard();
+            updateContributorsList();
+            updateMenuList();
+            updateCurrentOrder();
+            updateSalesList();
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+  </html>
